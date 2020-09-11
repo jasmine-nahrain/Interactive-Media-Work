@@ -1,104 +1,54 @@
 Table xy;
 int index = 0;
-
-
+float leftX, rightX;
 float x, y, w;
 float spdX, spdY, theta, rotSpd;
 float cornerRadiusOffset, dynamicRadius, collisionTheta;
-int h = height;
-float radius = 100;
+float radius = 500;
+float i = 0, j=0;
+float h;
+float a;
+float rad = 60;        // Width of the shape
+float xpos, ypos;    // Starting position of shape    
+
+float xspeed = 2.8;  // Speed of the shape
+float yspeed = 2.2;  // Speed of the shape
+
+int xdirection = 1;  // Left or Right
+int ydirection = 1;  // Top to Bottom
 
 void setup() { 
   size(1000, 1000); 
-  background(255); 
-  //colorMode(HSB);
+  background(184, 236, 255);
   translate(width/2, height/2); 
-  x = width/2;
-  y = height/2;
-  w = 150;
-  spdX = 2.1;
-  spdY = 1.5;
-  rotSpd = PI/180;
-  //quadraticForm(int(random(3, 25)), radius--, random(50, 100));
-   xy = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-08-15T19%3A06%3A09&rToDate=2020-08-17T19%3A06%3A09&rFamily=wasp&rSensor=ES_B_06_418_7BED&rSubSensor=HUMA", "csv");
+  leftX = random(0, width);
+  h = random(0, height/2);
+  sun();
+  //xy = loadTable("http://eif-research.feit.uts.edu.au/api/csv/?rFromDate=2020-08-15T19%3A06%3A09&rToDate=2020-08-17T19%3A06%3A09&rFamily=wasp&rSensor=ES_B_06_418_7BED&rSubSensor=HUMA", "csv");
 } 
 
 void draw() {
-    pushStyle();
-      color(0, 128, 0);
-      strokeWeight(10);
-      line(width/2, height--, width/2, height);
-    popStyle();
-  if (index < xy.getRowCount()) {
-    // read the 2nd column (the 1), and read the row based on index which increments each draw()
-    int y = xy.getInt(index, 1); // index is the row, 1 is the column with the data.
-    //println(y);
-    //curveEllipse(4, random(0, 360), random(0, y), -.675); 
+  leftX = random(0, width);
+  rightX = random(0, width);
 
-    //Random Spots
-    //pushMatrix();
-    //translate(random(width), random(height));
-    //rotate(theta);
-    //quadraticForm(int(random(3, 25)), radius--, random(50, 100));
-    //popMatrix();
+  h = random(0, height/2);
 
-    //Center, gets larger
+  //if (index < 5) clouds();
+  //if (index < xy.getRowCount()/35) {
+    //int y = xy.getInt(index, 1);
     pushMatrix();
-    translate(width/2, height--);
-    rotate(theta);
-    //rect(-w/2, -w/2, w, w); //rectangle with changing color => add colour changer
-    quadraticForm(int(random(3, 25)), radius--, random(50, 100));
+    translate(random(width), random(height/10, height-300));
+    quadraticForm(int(random(3, 25)), random(50, 100), random(50, 100));
     popMatrix();
+    rotate(theta);
     index++;
-  }
- 
-  x += spdX;
-  y += spdY;
+  //}
+
+  //grass();
+
   theta += rotSpd;
+  leftX += 20;
   collide();
-}
-
-
-void curveEllipse(int pts, float radius, float handleRadius, float tightness) { 
-  float theta = 0; 
-  float cx = 0, cy = 0; 
-  float ax = 0, ay = 0; 
-  float rot = TWO_PI/pts; 
-  curveTightness(tightness);
-  beginShape();
-  for (int i=0; i<pts; i++) {
-    // need control before vertex 1 along the ellipse 
-    if (i==0) { 
-      cx = cos(theta - rot)*radius; 
-      cy = sin(theta - rot)*radius; 
-      ax = cos(theta)*radius; 
-      ay = sin(theta)*radius; 
-      curveVertex(cx, cy); 
-      curveVertex(ax, ay);
-    } else { 
-      ax = cos(theta)*radius; 
-      ay = sin(theta)*radius; 
-      curveVertex(ax, ay);
-    } // close ellipse 
-
-    if (i==pts-1) { 
-      cx = cos(theta + rot)*radius; 
-      cy = sin(theta + rot)*radius; 
-      ax = cos(theta + rot*2)*radius; 
-      ay = sin(theta + rot*2)*radius; 
-      curveVertex(cx, cy); 
-      curveVertex(ax, ay);
-    }
-
-    // draw anchor points/control points 
-    fill(random(0, 255)); 
-    ellipse(random(width), random(height), handleRadius*2, handleRadius*2); 
-    theta += rot;
-  } 
-  fill(0, 127); 
-  strokeWeight(0);
-  noStroke(); 
-  endShape();
 }
 
 void quadraticForm(int limbs, float controlRadius, float limbRadius) {
@@ -115,18 +65,10 @@ void quadraticForm(int limbs, float controlRadius, float limbRadius) {
     theta += rot;
     ax = cos(theta)*limbRadius;
     ay = sin(theta)*limbRadius;
-    println(cx);
-    println(cy);
-    println(ax);
-    println(ay);
     if (i==0) { 
       vertex(ax, ay);
     } else {
       quadraticVertex(cx, cy, ax, ay);
-      fill(0, 0, 255);
-      //rect(cx-3, cy-3, 6, 6);
-      //ellipse(ax, ay, 6, 6);
-      //line(ax, ay, cx, cy);
     }
     theta += rot;
 
@@ -136,13 +78,14 @@ void quadraticForm(int limbs, float controlRadius, float limbRadius) {
       ax = cos(rot)*limbRadius;
       ay = sin(rot)*limbRadius;
       quadraticVertex(cx, cy, ax, ay);
-
-      //rect(cx-3, cy-3, 6, 6);
-      //ellipse(random(width), random(height), 6, 6);
-      //line(ax, ay, cx, cy);
     }
   }
   colourChanger();
+  pushStyle();
+  //color(0, 128, 0);
+  //strokeWeight(10);
+  //line(cx-controlRadius, cy, cx-controlRadius, height);
+  popStyle();
   endShape();
 }
 
@@ -152,8 +95,71 @@ void colourChanger() {
   float color3 = random(0, 255);
   float color4 = random(0, 255);
 
-  fill(color1, color2, color3, color4);
-  stroke(color1, color2, color3, color4);
+  fill(color1, color2, color3);
+  stroke(color1, color2, color3);
+}
+
+//void clouds() {
+//  pushStyle();
+//  fill(255);
+//  stroke(255);
+//  translate(x, 0);
+//  ellipse(leftX, h, 126, 97);
+//  ellipse(leftX+62, h, 70, 60);
+//  ellipse(leftX-62, h, 70, 60);
+//  popStyle();
+//}
+
+void clouds() {
+  // clouds 
+  fill(255, 255, 255);
+  noStroke();
+  // left cloud
+  ellipse(leftX, 150, 126, 97);
+  ellipse(leftX+62, 150, 70, 60);
+  ellipse(leftX-62, 150, 70, 60);
+
+  // right cloud
+  ellipse(rightX, 100, 126, 97);
+  ellipse(rightX+62, 100, 70, 60);
+  ellipse(rightX-62, 100, 70, 60);
+}
+
+void grass() {
+  if (i < 200 && j < 150) {    
+    pushStyle();
+    fill(34, 139, 34);
+    stroke(34, 139, 34);
+    strokeWeight(10);
+    bezier(0, height-i, width/3, height-150, width/2, height-250, width, height-j);
+    i++;
+    j++;
+    popStyle();
+  }
+}
+
+//void sun() {
+//  pushStyle();
+//  fill(255, 170, 0);
+//  stroke(255, 170, 0);
+//  ellipse(350, -350, 200, 200);
+//  popStyle();
+//}
+
+void sun() {
+  pushMatrix();
+  pushStyle();
+  frameRate(30);
+  ellipseMode(RADIUS);
+  //// Update the position of the sun
+  xpos = xpos + ( xspeed * xdirection );
+  ypos = ypos + ( yspeed * ydirection );
+  fill(255, 170, 0);
+  stroke(255, 170, 0);
+  rad = rad + 0.5;
+  ellipse(xpos, ypos, rad, rad);
+  popStyle();
+  popMatrix();
 }
 
 void collide() {
